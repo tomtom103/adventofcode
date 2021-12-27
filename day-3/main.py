@@ -1,57 +1,34 @@
 from pathlib import Path
-from typing import List
 
+def _mcb(vals: list) -> int:
+    bit_count = [sum(int(num[i]) for num in vals) for i in range(len(vals[0]))]
+    return [1 if cnt >= (len(vals) - cnt) else 0 for cnt in bit_count]
 
-def gamma_rate(input: List[str]):
-    """
-    Return a binary string composed of the most common bits of the input.
-    """
-    result = ""
-    binary_len = len(input[0])
-    for i in range(binary_len):
-        values = [val[i] for val in input]
-        result += max(set(values), key=values.count)
-    return result
+def reduce_reports(reports: list, invert: bool = False) -> int:
+    for i in range(0, len(reports[0])):
+        mcb = _mcb(reports)[i]
+        bit = str(1 - mcb if invert else mcb)
+        reports = [rep for rep in reports if rep[i] == bit]
+        if len(reports) == 1:
+            break
+    return int(reports[0], 2)
 
+def part1(vals: str) -> int:
+    vals = vals.rsplit('\n')
+    mcb = _mcb(vals)
+    gamma = "".join(["1" if bit else "0" for bit in mcb])
+    epsilon = "".join(["0" if bit else "1" for bit in mcb])
+    return int(gamma, 2) * int(epsilon, 2)
 
-def epsilon_rate(input: List[str]):
-    """
-    Return a binary string composed of the most common bits of the input.
-    """
-    result = ""
-    binary_len = len(input[0])
-    for i in range(binary_len):
-        values = [val[i] for val in input]
-        result += min(set(values), key=values.count)
-    return result
-
-
-def power_consumption(input: str) -> int:
-    values = input.rsplit()
-
-    gamma = gamma_rate(values)
-    epsilon = epsilon_rate(values)
-
-    return int(gamma, base=2) * int(epsilon, base=2)
-
-
-def oxygen_generator_rate(input: List[str]):
-    valid_inputs = input
-    binary_len = len(input[0])
-    for i in range(binary_len):
-        values = [val[i] for val in input]
-        most_common = max(set(values), key=values.count)
-        if 
-
-def co2_scrubber_rate(input: List[str]):
-    pass
-
-
-def life_support(input: str) -> int:
-    pass
+def part2(vals: str) -> int:
+    vals = vals.rsplit('\n')
+    oxygen_generator_rating = reduce_reports(vals[:])
+    co2_scrubber_rating = reduce_reports(vals[:], invert=True)
+    return oxygen_generator_rating * co2_scrubber_rating
 
 if __name__ == "__main__":
     current_path = Path(__file__).parent.absolute()
     with open(current_path / "input.txt", "r") as f:
         input = f.read()
-    print(power_consumption(input))
+    print(f"Part 1: {part1(input)}")
+    print(f"Part 2: {part2(input)}")
